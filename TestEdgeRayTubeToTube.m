@@ -1,7 +1,7 @@
 clear;
 close all;
 %% geometry setup
-r = 0.6; % radius of tubes
+r = 2; % radius of tubes
 D = 12; % distance of tube centers
 involuteEndAngle = acos(r / (D/2)); % top left involute end edge ray is tangent to left circle here
 
@@ -72,29 +72,52 @@ y_rbinv = deval(sol3b,linspace(sol3b.x(1), sol3b.x(end), 50));
 %%
 f1 = figure(1);
 clf;
+lw = 1.5;
 axis equal;
 %grid on;
 hold on;
 PlotRayBundle(gca, rblIn1, 0);
-plot(y_ltinv(1,:),y_ltinv(2,:),'r');
+plot(y_ltinv(1,:),y_ltinv(2,:),'r','LineWidth',lw);
 % top reflector
 PlotRayBundle(gca, rblIn2, 0);
 PlotRayBundle(gca, rblOut2, 0);
-plot(y_trefl(1,:),y_trefl(2,:),'b');
+plot(y_trefl(1,:),y_trefl(2,:),'b','LineWidth',lw);
 % top right involute
 PlotRayBundle(gca, rblIn3, 0);
-plot(y_rtinv(1,:),y_rtinv(2,:),'r');
+plot(y_rtinv(1,:),y_rtinv(2,:),'r','LineWidth',lw);
 
 PlotRayBundle(gca, rblIn1b, 0);
-plot(y_lbinv(1,:),y_lbinv(2,:),'r');
+plot(y_lbinv(1,:),y_lbinv(2,:),'r','LineWidth',lw);
 % top reflector
 PlotRayBundle(gca, rblIn2b, 0);
 PlotRayBundle(gca, rblOut2b, 0);
-plot(y_brefl(1,:),y_brefl(2,:),'b');
+plot(y_brefl(1,:),y_brefl(2,:),'b','LineWidth',lw);
 % top right involute
 PlotRayBundle(gca, rblIn3b, 0);
-plot(y_rbinv(1,:),y_rbinv(2,:),'r');
-%axis off
+plot(y_rbinv(1,:),y_rbinv(2,:),'r','LineWidth',lw);
+% plot some rays
+inv_tl = LocationSpline(y_ltinv);
+r1 = rblIn1.Ray(0.5);
+[~,rp1] = inv_tl.Intersect(r1);
+plot([r1.p_(1),rp1(1)],[r1.p_(2),rp1(2)],':r','LineWidth',lw);
+r2 = rblIn1.Ray(0.2);
+[~,rp2] = inv_tl.Intersect(r2);
+plot([r2.p_(1),rp2(1)],[r2.p_(2),rp2(2)],':r','LineWidth',lw);
+
+refl_t = LocationSpline(y_trefl);
+r3_in = rblIn2.Ray(0.7);
+[~,rp3_in] = refl_t.Intersect(r3_in);
+plot([r3_in.p_(1),rp3_in(1)],[r3_in.p_(2),rp3_in(2)],':b','LineWidth',lw);
+[~,r3_out] = rblOut2.FindRayToPoint(rp3_in);
+plot([r3_out.p_(1),rp3_in(1)],[r3_out.p_(2),rp3_in(2)],':b','LineWidth',lw);
+r4_in = rblIn2.Ray(0.02);
+[~,rp4_in] = refl_t.Intersect(r4_in);
+plot([r4_in.p_(1),rp4_in(1)],[r4_in.p_(2),rp4_in(2)],':b','LineWidth',lw);
+[~,r4_out] = rblOut2.FindRayToPoint(rp4_in);
+plot([r4_out.p_(1),rp4_in(1)],[r4_out.p_(2),rp4_in(2)],':b','LineWidth',lw);
+
+
+axis off
 
 
 %%

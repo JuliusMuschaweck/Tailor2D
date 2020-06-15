@@ -44,9 +44,10 @@ classdef SplineRayBundle < RayBundle
         end
         
         function d = Normal(obj, u)
-            d = obj.Tangent(u);
+            t = obj.Tangent(u);
+            d = zeros(size(t));
             for i = 1:length(u)
-                d(:,i) = Unit2D([-d(2,i);d(1,i)]);
+                d(:,i) = Unit2D([-t(2,i);t(1,i)]);
             end
         end
         

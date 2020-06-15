@@ -1,9 +1,10 @@
-%% Class Ray
+%% Ray class
 % A container for a 2D ray, with location and direction.
-%% Syntax
-% |rv = func(x)|
 %% Description
-% |rv = func(x)| computes rv
+% This class has two 2D column vector properties: location |p_| and and direction |k_|. While location can be anything,
+% the length of |k_| is taken to be the refractive index. A |Ray| also knows its closest distance to a
+% point, knows where it intersects another ray, and knows where it intersects a <file:LocationRange.html,
+% LocationRange>.
 %% Examples
 %% Input Arguments
 % * |x|: scalar double. Length of something
