@@ -1,13 +1,13 @@
-classdef CircularArcEdgeRayBundle < RayBundle
+classdef SphericalWavefrontRayBundle < RayBundle
     properties (SetAccess = private)
-        c_ (2,1) double % circle center
+        c_ (2,1) double % sphere center
         r_ (1,1) double % radius
-        theta0_ (1,1) double % start angle
+        theta0_ (1,1) double % start angle. theta_1 > theta_0 means outward, else inward
         theta1_ (1,1) double % end angle
         n_ (1,1) double % refractive index
     end
     methods
-        function obj = CircularArcEdgeRayBundle(c, r, theta0, theta1, n)
+        function obj = SphericalWavefrontRayBundle(c, r, theta0, theta1, n)
             arguments
                 c (2,1) double % circle center
                 r (1,1) {double, mustBeNonnegative} % radius
@@ -16,7 +16,7 @@ classdef CircularArcEdgeRayBundle < RayBundle
                 n (1,1) {double, mustBePositive} = 1 % refractive index
             end
             if theta0 == theta1
-                error('CircularArcEdgeRayBundle: angles must not be equal');
+                error('SphericalWavefrontRayBundle: angles must not be equal');
             end
             obj.c_ = c;
             obj.r_ = r;
@@ -29,10 +29,9 @@ classdef CircularArcEdgeRayBundle < RayBundle
             obj.CheckBounds(u); % u is 1 x n row vector
             [~, st, ct] = obj.Theta(u);
             loc = obj.c_ + obj.r_ * [ct;st];
-            if obj.theta0_ < obj.theta1_ % go left
-                dir = obj.n_ * [-st; ct];
-            else % go right
-                dir = obj.n_ * [st; -ct];
+            dir = obj.n_ * [ct; st];
+            if obj.theta0_ > obj.theta1_ % go inside
+                dir = - dir;
             end
             if isscalar(u)
                 r = Ray(loc, dir);
@@ -66,15 +65,18 @@ classdef CircularArcEdgeRayBundle < RayBundle
         function k = Dir(obj, u)
             obj.CheckBounds(u); % u is 1 x n row vector
             [~, st, ct] = obj.Theta(u);
-            fac = obj.n_ * (obj.theta1_ - obj.theta0_) / obj.du_; % takes care of left/right
-            k = fac * [-st; ct];
+            if obj.theta0_ > obj.theta1_ % go outside
+                k = obj.n_ * [-ct; -st];
+            else
+                k = obj.n_ * [ct; st];
+            end
         end
         
         function dk = dkdu(obj, u)
             obj.CheckBounds(u); % u is 1 x n row vector
             [~, st, ct] = obj.Theta(u);
             fac = obj.n_ * (obj.theta1_ - obj.theta0_) / obj.du_; % takes care of left/right
-            dk = fac * [-ct; -st];
+            dk = fac * [-st; ct];
         end
         
         function rv = Energy(obj,u) 
@@ -93,4 +95,4 @@ classdef CircularArcEdgeRayBundle < RayBundle
             end
         end
     end
-end
+end        

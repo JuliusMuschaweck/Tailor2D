@@ -92,12 +92,12 @@ classdef RayBundle < Range
                 [u, ray, opl] = FindBracketedRayToPoint(obj, p, obj.umin_, obj.umax_);
                 return;
             else
-                if testmin == 0
+                if abs(testmin) < eps
                     u = obj.umin_;
                     ray = obj.Ray(u);
                     opl = (p - ray.p_)' * ray.k_;
                     return;
-                elseif testmax == 0
+                elseif abs(testmax) < eps
                     u = obj.umax_;
                     ray = obj.Ray(u);
                     opl = (p - ray.p_)' * ray.k_;
@@ -147,16 +147,33 @@ classdef RayBundle < Range
                 locationRange LocationRange
                 nameValueArgs.nPoints (1,1) {mustBeInteger, mustBeGreaterThan(nameValueArgs.nPoints, 1)} = 100
                 nameValueArgs.errorOnCaustic (1,1) logical = true
+                nameValueArgs.refractIndex (1,1) double = NaN
             end
+            
+            doRefract = ~(isnan(nameValueArgs.refractIndex));
             n = nameValueArgs.nPoints;
-            urange = linspace(obj.umin_, obj.umax_, n);
+            [u0, ~, ~, ok0] = FindRayToPoint(obj, locationRange.Loc(locationRange.umin_));
+            if ok0 < 0
+                u0 = NaN;
+            end
+            [u1, ~, ~, ok1] = FindRayToPoint(obj, locationRange.Loc(locationRange.umax_));
+            if ok1 < 0
+                u1 = NaN;
+            end
+            urange = linspace(max(obj.umin_, min(u0,u1)), min(obj.umax_, max(u0, u1)), n);
             u_loc = NaN(1,n);
             p_loc = NaN(2,n);
-            k_loc = naN(2,n);
+            k_loc = NaN(2,n);
+            n_loc = NaN(2,n);
             for i = 1:nameValueArgs.nPoints
                 ray = obj.Ray(urange(i));
-                k_loc(:,i) = ray.k_;
-                [u_loc(i), p_loc(:,i)] = locationRange.Intersect(ray);
+                [u_loc(i), p_loc(:,i), n_loc(:,i)] = locationRange.Intersect(ray);
+                if doRefract
+                    tmp = ray.RefractAtPoint(p_loc(:,i), n_loc(:,i), nameValueArgs.refractIndex);
+                    k_loc(:,i) = tmp.k_;
+                else
+                    k_loc(:,i) = ray.k_;
+                end
             end
             du_loc = diff(u_loc);
             allPos = (du_loc > 0);
@@ -164,9 +181,24 @@ classdef RayBundle < Range
             if nameValueArgs.errorOnCaustic && (~(all(allPos)|| all(allNeg)))
                 error('RayBundle.PropagateTo: Encountered caustic');
             end
-            rv = SplineRayBundle(p_loc, k_loc, obj.dEdu(urange));
+            rv = SplineRayBundle(p_loc, k_loc, []);
         end
         
+        function [p, lambda] = CausticPoint(obj, u)
+            % caustic point p == obj.p_ + lambda * Unit2D(obj.k_)
+            dk = obj.dkdu(u);
+            dk2 = dk' * dk;
+            if dk2 < eps
+                lambda = Inf;
+                p = [Inf;Inf];
+                return;
+            end
+            dp = obj.Tangent(u);
+            r = obj.Ray(u);
+            lambda = - (dp' * dk) / dk2;
+            p = r.p_ + lambda * Unit2D(r.k_);
+        end
+
         
     end
     methods (Access = private)
