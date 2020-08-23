@@ -29,7 +29,7 @@ classdef SphericalWavefrontRayBundle < RayBundle
             obj.CheckBounds(u); % u is 1 x n row vector
             [~, st, ct] = obj.Theta(u);
             loc = obj.c_ + obj.r_ * [ct;st];
-            dir = obj.n_ * [ct; st];
+            dir = obj.n_ * [ct; st] * obj.reverse_;
             if obj.theta0_ > obj.theta1_ % go inside
                 dir = - dir;
             end
@@ -62,7 +62,7 @@ classdef SphericalWavefrontRayBundle < RayBundle
             t = fac * [-st; ct];
         end
         
-        function k = Dir(obj, u)
+        function k = iDir(obj, u)
             obj.CheckBounds(u); % u is 1 x n row vector
             [~, st, ct] = obj.Theta(u);
             if obj.theta0_ > obj.theta1_ % go outside
@@ -72,7 +72,7 @@ classdef SphericalWavefrontRayBundle < RayBundle
             end
         end
         
-        function dk = dkdu(obj, u)
+        function dk = idkdu(obj, u)
             obj.CheckBounds(u); % u is 1 x n row vector
             [~, st, ct] = obj.Theta(u);
             fac = obj.n_ * (obj.theta1_ - obj.theta0_) / obj.du_; % takes care of left/right

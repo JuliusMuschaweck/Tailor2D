@@ -88,7 +88,7 @@ function [dy, ok] = i_odefun(t, y, in_rbl, out_rbl, dy0, left)
     end
     [~, ray1, ~, ok_in] = in_rbl.FindForwardRayToPoint(y);
     [~, ray2, ~, ok_out] = out_rbl.FindBackwardRayToPoint(y);
-    if ok_in < 0 || ok_out < 0
+    if ~ok_in || ~ok_out
         dy = [0;0];
         ok = false;
     else

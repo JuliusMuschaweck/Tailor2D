@@ -6,30 +6,50 @@ classdef LocationRange < Range
     end
     
     methods
-        function [px,py] = Points(obj, n) % list of coordinates to draw full line
+        function [px,py] = Points(obj, nPts) % list of coordinates to draw full line
             arguments
                 obj
-                n (1,1) double {mustBeInteger, mustBeGreaterThan(n, 1)}
+                nPts (1,1) double {mustBeInteger, mustBeGreaterThan(nPts, 1)}
             end
-            tmp = obj.Loc(linspace(obj.umin_, obj.umax_, n));
+            tmp = obj.Loc(linspace(obj.umin_, obj.umax_, nPts));
             px = tmp(1,:);
             py = tmp(2,:);
         end
-        function [u, loc, normal] = Intersect(obj, ray) % returns u and loc where ray intersects 
+        
+        function [u, loc, normal, ok] = Intersect(obj, ray) % returns u and loc and normal where ray intersects 
             arguments
                 obj
                 ray Ray
             end
-            test = obj.TestIntersect(obj.umin_, ray) * obj.TestIntersect(obj.umax_, ray);
+            test0 = obj.TestIntersect(obj.umin_, ray); 
+            test1 =  obj.TestIntersect(obj.umax_, ray);
+            test = test0 * test1;
+            ok = true;
             if test < 0 % bracket ok
                 func = @(uu) obj.TestIntersect(uu, ray);
                 u = FindRoot1D(func, obj.umin_, obj.umax_);
+            else
+                if abs(test0) < eps
+                    u = obj.umin_;
+                elseif abs(test1) < eps
+                    u = obj.umax_;
+                else
+                    ok = false;
+                end
+            end
+            if ok
                 loc = obj.Loc(u);
                 if nargout > 2
                     normal = obj.Normal(u);
                 end
             else
-                error('LocationRange.Intersect: No intersection found');
+                if nargout > 3
+                    u = NaN;
+                    loc = [NaN;NaN];
+                    normal = [NaN;NaN];
+                else
+                    error('LocationRange.Intersect: No intersection found');
+                end
             end
         end
         

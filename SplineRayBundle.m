@@ -28,11 +28,11 @@ classdef SplineRayBundle < RayBundle
             obj.CheckBounds(u); % u is 1 x n row vector
             tmp = ppval(obj.pp_,u); % 5 x n matrix
             if isscalar(u)
-                r = Ray(tmp(1:2), tmp(3:4));
+                r = Ray(tmp(1:2), tmp(3:4) * obj.reverse_);
             else
                 r = repmat(Ray(),1,length(u));
                 for i = 1:length(u)
-                    r(i) = Ray(tmp(1:2,i), tmp(3:4,i));
+                    r(i) = Ray(tmp(1:2,i), tmp(3:4,i) * obj.reverse_);
                 end
             end
         end
@@ -57,13 +57,13 @@ classdef SplineRayBundle < RayBundle
             t = tmp(1:2,:);
         end
         
-        function k = Dir(obj, u)
+        function k = iDir(obj, u)
             obj.CheckBounds(u); % u is 1 x n row vector
             tmp = ppval(obj.pp_,u); % 5 x n matrix
             k = tmp(3:4,:);
         end
         
-        function dk = dkdu(obj, u)
+        function dk = idkdu(obj, u)
             obj.CheckBounds(u); % u is 1 x n row vector
             tmp = ppval(obj.dpp_,u); % 5 x n matrix
             dk = tmp(3:4,:);

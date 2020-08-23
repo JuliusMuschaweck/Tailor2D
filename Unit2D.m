@@ -1,4 +1,4 @@
-function rv = Unit2D(rhs)
+function [rv, n] = Unit2D(rhs)
     arguments
         rhs (2,1) double
     end

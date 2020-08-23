@@ -71,7 +71,7 @@ classdef Ray
             if in' * n < 0
                 n = -n;
             end
-            D = no^2 - ni^2 + in' * n;
+            D = no^2 - ni^2 + (in' * n)^2;
             if D < 0
                 error('Ray.RefractAtPoint: TIR');
             end

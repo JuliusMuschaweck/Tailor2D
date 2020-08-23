@@ -43,33 +43,34 @@ toc
 f1 = figure(1);
 clf;
 lw = 1.5;
+nPts = 50;
 axis equal;
 %grid on;
 hold on;
 PlotRayBundle(gca, rblIn1, 0);
-[px,py] = y_ltinv.Points();
+[px,py] = y_ltinv.Points(nPts);
 plot(px,py,'r','LineWidth',lw);
 % top reflector
 PlotRayBundle(gca, rblIn2, 0);
 PlotRayBundle(gca, rblOut2, 0);
-[px,py] = y_trefl.Points();
+[px,py] = y_trefl.Points(nPts);
 plot(px,py,'b','LineWidth',lw);
 % top right involute
 PlotRayBundle(gca, rblIn3, 0);
-[px,py] = y_rtinv.Points();
+[px,py] = y_rtinv.Points(nPts);
 plot(px,py,'r','LineWidth',lw);
 
 PlotRayBundle(gca, rblIn1b, 0);
-[px,py] = y_lbinv.Points();
+[px,py] = y_lbinv.Points(nPts);
 plot(px,py,'r','LineWidth',lw);
 % top reflector
 PlotRayBundle(gca, rblIn2b, 0);
 PlotRayBundle(gca, rblOut2b, 0);
-[px,py] = y_brefl.Points();
+[px,py] = y_brefl.Points(nPts);
 plot(px,py,'b','LineWidth',lw);
 % top right involute
 PlotRayBundle(gca, rblIn3b, 0);
-[px,py] = y_rbinv.Points();
+[px,py] = y_rbinv.Points(nPts);
 plot(px,py,'r','LineWidth',lw);
 
 % plot some rays
